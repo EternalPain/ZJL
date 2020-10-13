@@ -206,7 +206,7 @@ boot_auto_on() {
     # 选项为 面具 且自启文件不存在的话，就为true
     if [[ "面具" == ${option} ]] && [ ! -s ${path} ]; then
         # 写入防跳路径到自启文件
-        echo "#!/system/bin/sh\nsleep 25\n${0} ON" > ${path}
+        echo "#!/system/bin/sh\nsleep 25\n${0} -o" > ${path}
         # 给权限
         `chmod 777 ${path}`
         
