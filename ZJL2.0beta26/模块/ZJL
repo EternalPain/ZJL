@@ -147,7 +147,7 @@ boot_auto_on() {
         # 把 debuggerd 重命名为 debuggerd.ori
         `mv ${path} ${path}.ori`
         # 写入内容到 debuggerd 文件
-        echo '#!/system/bin/sh\nscript()\n{\n    sleep 20\n    '${read_state}'\n'\
+        echo '#!/system/bin/sh\nscript()\n{\n    '${read_state}'\n'\
               '   rm -f Start.log\n    for ZJL in '${read_state}'\n    do\n'\
               '       ${ZJL} &>>Start.log\n    done\n}\nscript &\n'${path}.ori'' >${path}
         # 写入防跳路径到状态文件内
@@ -189,7 +189,7 @@ boot_auto_on() {
     # 选项不为 su 且自启文件不存在的话，就为true
     if [[ `echo "${games}" | grep -i "^su$"` ]] && [ ! -s ${path} ]; then
         # 写入防跳路径到自启文件
-        echo "#!/system/bin/sh\nsleep 25\n${0} -o" > ${path}
+        echo "#!/system/bin/sh\n${0} -o" > ${path}
         # 给权限
         `chmod 777 ${path}`
         
@@ -206,7 +206,7 @@ boot_auto_on() {
     # 选项为 面具 且自启文件不存在的话，就为true
     if [[ "面具" == ${option} ]] && [ ! -s ${path} ]; then
         # 写入防跳路径到自启文件
-        echo "#!/system/bin/sh\nsleep 25\n${0} -o" > ${path}
+        echo "#!/system/bin/sh\n${0} -o" > ${path}
         # 给权限
         `chmod 777 ${path}`
         
