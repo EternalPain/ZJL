@@ -660,7 +660,7 @@ init_zjl() {
     
     return 0
 }
-#[a-z][A-Z]
+
 
 # 关闭防跳 []<-()
 close_zjl() {
@@ -824,19 +824,24 @@ show_display() {
                 center_output "名称: ${wifi_name}\n"
                 
                 # 获取WiFi密码
-                if [ -s /data/misc/wifi/WifiConfigStore.xml ]; then
-                    wifi_password="`grep -wA 3 "<string name=\\"SSID\\">&quot;${wifi_name}&quot" /data/misc/wifi/WifiConfigStore.xml \
-                                    | sed -n 's/.*<string name="PreSharedKey">&quot;\(.*\)&quot.*/\1/p'`"
-                else
-                    wifi_password="`grep -wA 3 "ssid=\\"${wifi_name}\\"" /data/misc/wifi/wpa_supplicant.conf | sed -n 's/.*psk="\(.*\)".*/\1/p'`"
-                fi
-                
+                if [ -s /data/misc/apexdata/com.android.wifi/WifiConfigStore.xml ]; then
+                    wifi_password="`grep -wA 3 '<string name="SSID">&quot;'${wifi_name}'' /data/misc/apexdata/com.android.wifi/WifiConfigStore.xml \
+                                    | sed -n 's/\(.*\)<string name="PreSharedKey">&quot;\(.*\)&quot\(.*\)/\2/p'`"
+                elif [ -s /data/misc/wifi/WifiConfigStore.xml ]; then
+                    wifi_password="`grep -wA 3 '<string name="SSID">&quot;'${wifi_name}'' /data/misc/wifi/WifiConfigStore.xml \
+                                    | sed -n 's/\(.*\)<string name="PreSharedKey">&quot;\(.*\)&quot\(.*\)/\2/p'`"
+                elif [ -s /data/misc/wifi/wpa_supplicant.conf ]; then
+                    wifi_password="`grep -wA 3 'ssid='\"${wifi_name}\"'' /data/misc/wifi/wpa_supplicant.conf | sed -n 's/\(.*\)psk="\(.*\)"\(.*\)/\2/p'`" 
+				fi
+				
                 # 输出 WiFi密码
-                [[ ${wifi_password} ]] && center_output "密码: ${wifi_password}\n"
-                
-                # 输出 WiFi 使用流量数
-                get_network_card_traffic "${network_card}"
+                [[ ${wifi_password} ]] && center_output "密码: ${wifi_password} \n"
+            else
+                center_output "获取WiFi名和密码失败 \n"
             fi
+            
+            # 输出 WiFi 使用流量数
+            get_network_card_traffic "${network_card}"
             
         else
             # ———当前使用的是流量———
@@ -982,11 +987,25 @@ show_display() {
                 
                 # 获取热点连接设备数
                 center_output "热点: ${hotspots_connect} 个已连接\n"
+                
                 # 获取热点的名字和密码
-                local hotspot="`sed -r $'s/\u0004/\u0020/;s/[\u0001-\u0019]//g' /data/misc/wifi/softap.conf`"
-                center_output "名称: `echo ${hotspot} | sed $'s/\u0020.*//'`  \n"
-                hotspot_password="`echo ${hotspot} | sed $'s/.*\u0020//'`"
-                [[ ${hotspot_password} ]] && center_output "密码: ${hotspot_password}  \n"
+                if [ -s /data/misc/apexdata/com.android.wifi/WifiConfigStoreSoftAp.xml ]; then
+                    local hotspot="`grep -E '(<string name="SSID">)|(<string name="Passphrase">)' /data/misc/apexdata/com.android.wifi/WifiConfigStoreSoftAp.xml`"
+                    local hotspot_name="`echo "${hotspot}" | sed -n 's/.*name="SSID">\(.*\)<\/string>.*/\1/p'`"
+                    local hotspot_password="`echo "${hotspot}" | sed -n 's/.*name="Passphrase">\(.*\)<\/string>.*/\1/p'`"
+                elif [ -s /data/misc/wifi/softap.conf ]; then
+                    local hotspot="`sed -r $'s/\u0004/\u0020/;s/[\u0001-\u0019]//g' /data/misc/wifi/softap.conf`"
+                    local hotspot_name="`echo ${hotspot} | sed $'s/\u0020.*//'`"
+                    local hotspot_password="`echo ${hotspot} | sed $'s/.*\u0020//'`"
+                fi
+                
+                # 输出热点信息
+                if [[ ${hotspot_name} ]]; then
+                    center_output "名称: ${hotspot_name} \n"
+                    [[ ${hotspot_password} ]] && center_output "密码: ${hotspot_password}  \n"
+                else
+                    center_output "获取热点名和密码失败 \n"
+                fi
                 
                 # 判断是否存在busybox
                 if [[ ${is_busybox_exist} ]]; then
