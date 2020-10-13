@@ -815,7 +815,7 @@ show_display() {
             
             center_output "网络: WIFI 已连接 √\n"
             #获取WIFI的网卡
-            local network_card="`echo "${network_info}" | grep -i "wlan" | sed 's/ .*//'`"
+            local network_card="`echo "${network_info}" | grep -i "wlan" | sed -n 's/ .*//;1p'`"
             # 获取WiFi SSID
             local wifi_name="`dumpsys netstats | grep -i "iface" | grep -i "${network_card}" | sed -n 's/.*networkId="\(.*\)".*/\1/g;1p'`"
             
