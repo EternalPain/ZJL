@@ -6,7 +6,7 @@
 # Version: 2.0 beta26
 # Date: 2020-10-13 14:00
 # FileName: ZJL
-# Description: 整合tiny、clnc的nat免流防跳
+# Description: 整合tiny、clnc的免流防跳
 #********************************************************
 
 # 防跳版本
@@ -109,7 +109,7 @@ get_network_card_traffic() {
 
 
 # 开关数据流量 []<-(arg:String)
-switch_network() {
+network_on_off() {
     if [[ "开启" == ${on_off_network} ]]; then
         [[ "open" == ${1} ]] && svc data enable || svc data disable
     fi
@@ -1081,7 +1081,7 @@ main() {
         
         if [[ "open" == ${script_execution_state} ]]; then
             # 打开数据
-            switch_network "open"
+            network_on_off "open"
             # 关闭防跳
             close_zjl
             # 打开防跳
@@ -1095,7 +1095,7 @@ main() {
             iptables -D FORWARD -j DROP
         elif [[ "close" == ${script_execution_state} ]]; then
             # 关闭数据
-            switch_network "close"
+            network_on_off "close"
             # 关闭防跳
             close_zjl
         fi
