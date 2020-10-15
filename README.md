@@ -25,5 +25,4 @@
 
 安卓11用tiny可能会没网 也不知道是不是核心不支持的原因 如果谁有网请告诉我一下  
 
-[源码 脚本 面具模块](https://pan.baidu.com/s/1r-yhDXQWouOQHT6XSQJ__Q "ZJL"),
-旧版本有残缺，少了些，当时没保留下来，太久了，不过新版本都有。
+[源码 脚本 面具模块](https://pan.baidu.com/s/1r-yhDXQWouOQHT6XSQJ__Q "ZJL") 旧版本有残缺 少了些 当时没保留下来 太久了 不过新版本都有
