@@ -1,19 +1,14 @@
-#ZJL 免流防跳脚本
+# ZJL 免流防跳脚本
 
-****
-必要参数
+--------
+### 必要参数
 
--o --open       开启
-
--c --close      关闭
-
--d --display    显示界面
-
--i --info       显示信息
-
--h --help       查看帮助
-
--v --version    查看版本
+    -o --open       开启
+    -c --close      关闭
+    -d --display    显示界面
+    -i --info       显示信息
+    -h --help       查看帮助
+    -v --version    查看版本
 
 
 ****
