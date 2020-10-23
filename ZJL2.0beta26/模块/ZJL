@@ -6,7 +6,7 @@
 # Version: 2.0 beta26
 # Date: 2020-10-13 14:00
 # FileName: ZJL
-# Description: 整合tiny、clnc的nat免流防跳
+# Description: 整合tiny、clnc的免流防跳
 #********************************************************
 
 # 防跳版本
@@ -109,7 +109,7 @@ get_network_card_traffic() {
 
 
 # 开关数据流量 []<-(arg:String)
-switch_network() {
+network_on_off() {
     if [[ "开启" == ${on_off_network} ]]; then
         [[ "open" == ${1} ]] && svc data enable || svc data disable
     fi
@@ -147,7 +147,7 @@ boot_auto_on() {
         # 把 debuggerd 重命名为 debuggerd.ori
         `mv ${path} ${path}.ori`
         # 写入内容到 debuggerd 文件
-        echo '#!/system/bin/sh\nscript()\n{\n    sleep 20\n    '${read_state}'\n'\
+        echo '#!/system/bin/sh\nscript()\n{\n    '${read_state}'\n'\
               '   rm -f Start.log\n    for ZJL in '${read_state}'\n    do\n'\
               '       ${ZJL} &>>Start.log\n    done\n}\nscript &\n'${path}.ori'' >${path}
         # 写入防跳路径到状态文件内
@@ -189,7 +189,7 @@ boot_auto_on() {
     # 选项不为 su 且自启文件不存在的话，就为true
     if [[ `echo "${games}" | grep -i "^su$"` ]] && [ ! -s ${path} ]; then
         # 写入防跳路径到自启文件
-        echo "#!/system/bin/sh\nsleep 25\n${0} -o" > ${path}
+        echo "#!/system/bin/sh\n${0} -o" > ${path}
         # 给权限
         `chmod 777 ${path}`
         
@@ -206,7 +206,7 @@ boot_auto_on() {
     # 选项为 面具 且自启文件不存在的话，就为true
     if [[ "面具" == ${option} ]] && [ ! -s ${path} ]; then
         # 写入防跳路径到自启文件
-        echo "#!/system/bin/sh\nsleep 25\n${0} ON" > ${path}
+        echo "#!/system/bin/sh\n${0} -o" > ${path}
         # 给权限
         `chmod 777 ${path}`
         
@@ -660,7 +660,7 @@ init_zjl() {
     
     return 0
 }
-#[a-z][A-Z]
+
 
 # 关闭防跳 []<-()
 close_zjl() {
@@ -815,7 +815,7 @@ show_display() {
             
             center_output "网络: WIFI 已连接 √\n"
             #获取WIFI的网卡
-            local network_card="`echo "${network_info}" | grep -i "wlan" | sed 's/ .*//'`"
+            local network_card="`echo "${network_info}" | grep -i "wlan" | sed -n 's/ .*//;1p'`"
             # 获取WiFi SSID
             local wifi_name="`dumpsys netstats | grep -i "iface" | grep -i "${network_card}" | sed -n 's/.*networkId="\(.*\)".*/\1/g;1p'`"
             
@@ -824,19 +824,24 @@ show_display() {
                 center_output "名称: ${wifi_name}\n"
                 
                 # 获取WiFi密码
-                if [ -s /data/misc/wifi/WifiConfigStore.xml ]; then
-                    wifi_password="`grep -wA 3 "<string name=\\"SSID\\">&quot;${wifi_name}&quot" /data/misc/wifi/WifiConfigStore.xml \
-                                    | sed -n 's/.*<string name="PreSharedKey">&quot;\(.*\)&quot.*/\1/p'`"
-                else
-                    wifi_password="`grep -wA 3 "ssid=\\"${wifi_name}\\"" /data/misc/wifi/wpa_supplicant.conf | sed -n 's/.*psk="\(.*\)".*/\1/p'`"
-                fi
-                
+                if [ -s /data/misc/apexdata/com.android.wifi/WifiConfigStore.xml ]; then
+                    wifi_password="`grep -wA 3 '<string name="SSID">&quot;'${wifi_name}'' /data/misc/apexdata/com.android.wifi/WifiConfigStore.xml \
+                                    | sed -n 's/\(.*\)<string name="PreSharedKey">&quot;\(.*\)&quot\(.*\)/\2/p'`"
+                elif [ -s /data/misc/wifi/WifiConfigStore.xml ]; then
+                    wifi_password="`grep -wA 3 '<string name="SSID">&quot;'${wifi_name}'' /data/misc/wifi/WifiConfigStore.xml \
+                                    | sed -n 's/\(.*\)<string name="PreSharedKey">&quot;\(.*\)&quot\(.*\)/\2/p'`"
+                elif [ -s /data/misc/wifi/wpa_supplicant.conf ]; then
+                    wifi_password="`grep -wA 3 'ssid='\"${wifi_name}\"'' /data/misc/wifi/wpa_supplicant.conf | sed -n 's/\(.*\)psk="\(.*\)"\(.*\)/\2/p'`" 
+				fi
+				
                 # 输出 WiFi密码
-                [[ ${wifi_password} ]] && center_output "密码: ${wifi_password}\n"
-                
-                # 输出 WiFi 使用流量数
-                get_network_card_traffic "${network_card}"
+                [[ ${wifi_password} ]] && center_output "密码: ${wifi_password} \n"
+            else
+                center_output "获取WiFi名和密码失败 \n"
             fi
+            
+            # 输出 WiFi 使用流量数
+            get_network_card_traffic "${network_card}"
             
         else
             # ———当前使用的是流量———
@@ -982,11 +987,25 @@ show_display() {
                 
                 # 获取热点连接设备数
                 center_output "热点: ${hotspots_connect} 个已连接\n"
+                
                 # 获取热点的名字和密码
-                local hotspot="`sed -r $'s/\u0004/\u0020/;s/[\u0001-\u0019]//g' /data/misc/wifi/softap.conf`"
-                center_output "名称: `echo ${hotspot} | sed $'s/\u0020.*//'`  \n"
-                hotspot_password="`echo ${hotspot} | sed $'s/.*\u0020//'`"
-                [[ ${hotspot_password} ]] && center_output "密码: ${hotspot_password}  \n"
+                if [ -s /data/misc/apexdata/com.android.wifi/WifiConfigStoreSoftAp.xml ]; then
+                    local hotspot="`grep -E '(<string name="SSID">)|(<string name="Passphrase">)' /data/misc/apexdata/com.android.wifi/WifiConfigStoreSoftAp.xml`"
+                    local hotspot_name="`echo "${hotspot}" | sed -n 's/.*name="SSID">\(.*\)<\/string>.*/\1/p'`"
+                    local hotspot_password="`echo "${hotspot}" | sed -n 's/.*name="Passphrase">\(.*\)<\/string>.*/\1/p'`"
+                elif [ -s /data/misc/wifi/softap.conf ]; then
+                    local hotspot="`sed -r $'s/\u0004/\u0020/;s/[\u0001-\u0019]//g' /data/misc/wifi/softap.conf`"
+                    local hotspot_name="`echo ${hotspot} | sed $'s/\u0020.*//'`"
+                    local hotspot_password="`echo ${hotspot} | sed $'s/.*\u0020//'`"
+                fi
+                
+                # 输出热点信息
+                if [[ ${hotspot_name} ]]; then
+                    center_output "名称: ${hotspot_name} \n"
+                    [[ ${hotspot_password} ]] && center_output "密码: ${hotspot_password}  \n"
+                else
+                    center_output "获取热点名和密码失败 \n"
+                fi
                 
                 # 判断是否存在busybox
                 if [[ ${is_busybox_exist} ]]; then
@@ -1062,7 +1081,7 @@ main() {
         
         if [[ "open" == ${script_execution_state} ]]; then
             # 打开数据
-            switch_network "open"
+            network_on_off "open"
             # 关闭防跳
             close_zjl
             # 打开防跳
@@ -1076,7 +1095,7 @@ main() {
             iptables -D FORWARD -j DROP
         elif [[ "close" == ${script_execution_state} ]]; then
             # 关闭数据
-            switch_network "close"
+            network_on_off "close"
             # 关闭防跳
             close_zjl
         fi
