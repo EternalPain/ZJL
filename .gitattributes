@@ -1,0 +1,8 @@
+tiny linguist-language=C
+clnc linguist-language=C
+MLBox linguist-language=Go
+ZJL linguist-language=Shell
+busybox linguist-language=Shell
+*.sh linguist-language=Shell
+*.ini linguist-language=txt
+*.conf linguist-language=txt
