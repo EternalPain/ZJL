@@ -4,14 +4,14 @@
 # Author: ZJL
 # QQ: 1965786708
 # Version: 2.0 beta28
-# Date: 2020-11-27 12:00
+# Date: 2020-11-27 18:00
 # FileName: ZJL
 # Description: 整合tiny、clnc的免流防跳
 #****************************************************
 
 # 防跳版本
 readonly zjl_version="2.0 beta28"
-readonly zjl_update_date="2020-11-27 12:00"
+readonly zjl_update_date="2020-11-27 18:00"
 
 # 显示帮助 []<-(errorMsg:String)
 show_help() {
@@ -178,7 +178,7 @@ boot_auto_on() {
     # 设置实现开启自启文件的路径
     local path="/system/bin/debuggerd"
     # 读取自启文件是否有本核心的开启命令
-    local read_state="`cat /data/ZJL.sh | grep -w "${0}"`"
+    [ -f ${path} ] && local read_state="`cat /data/ZJL.sh | grep -w "${0}"`" || local read_state=""
     
     # 选项为 通用 就为true
     if [[ "通用" == ${option} ]]; then
@@ -205,14 +205,14 @@ boot_auto_on() {
         # 给 debuggerd 文件赋权限
         `chmod 755 ${path}`
         # 删除状态文件
-        `rm -f ${read_state}`
+        `rm -f /data/ZJL.sh`
     fi
     
     
     # 重写路径，高通自启方法
     path="/system/etc/init.qcom.post_option.sh"
     # 判断所需文件是否存在 存在就读取状态
-    [ -f ${path} ] && read_state="`grep -w "${0}" ${path}`"
+    [ -f ${path} ] && read_state="`grep -w "${0}" ${path}`" || read_state=""
     
     # 选项为 高通 且状态为关闭的话，就为true
     if [[ "高通" == ${option} && ! ${read_state} ]]; then
@@ -229,7 +229,7 @@ boot_auto_on() {
     
     # 重写路径，SuperSU自启方法
     local path="/su/su.d/ZJL.sh"
-    local read_state="`cat ${path} | grep -w "${0}"`"
+    [ -f ${path} ] && local read_state="`cat ${path} | grep -w "${0}"`" || read_state=""
     
     # 选项不为 su 且自启文件不存在的话，就为true
     if [[ "su" == ${option} && ! ${read_state} ]]; then
@@ -251,7 +251,7 @@ boot_auto_on() {
     else
         path=/sbin/.core/img/.core/service.d/ZJL.sh
     fi
-    read_state="`cat ${path} | grep -w "${0}"`"
+    [ -f ${path} ] && read_state="`cat ${path} | grep -w "${0}"`" || read_state=""
     
     # 选项为 面具 且自启文件不存在的话，就为true
     if [[ "面具" == ${option} && ! ${read_state} ]]; then
@@ -964,7 +964,7 @@ show_display() {
         if [[ ${core_state} ]]; then
             # 输出模式名
             if [[ ${is_busybox_exist} ]]; then
-                center_output "模式: `ps w | grep "${core_state}" | grep -o '\-c.*' | sed -rn 's/.*\/(.*)/\1/;$p'`  " "above"
+                center_output "模式: `ps w | grep "${core_state}" | grep -o '\-c.*' | sed -rn 's/.*\/(.*)/\1/;1p'`  " "above"
             elif [[ ${select_mode_file} ]]; then
                 center_output "模式 ${select_mode_file}.conf  " "above"
             fi
