@@ -4,14 +4,14 @@
 # Author: ZJL
 # QQ: 1965786708
 # Version: 2.0 beta28
-# Date: 2020-11-27 18:00
+# Date: 2020-11-28 18:00
 # FileName: ZJL
 # Description: 整合tiny、clnc的免流防跳
 #****************************************************
 
 # 防跳版本
 readonly zjl_version="2.0 beta28"
-readonly zjl_update_date="2020-11-27 18:00"
+readonly zjl_update_date="2020-11-28 18:00"
 
 # 显示帮助 []<-(errorMsg:String)
 show_help() {
@@ -1148,9 +1148,9 @@ show_display() {
                     local hotspot_name="`echo "${hotspot}" | sed -n 's/.*name="SSID">\(.*\)<\/string>.*/\1/p'`"
                     local hotspot_password="`echo "${hotspot}" | sed -n 's/.*name="Passphrase">\(.*\)<\/string>.*/\1/p'`"
                 elif [ -s /data/misc/wifi/softap.conf ]; then
-                    local hotspot="`sed -r $'s/\u0004/\u0020/;s/[\u0001-\u0019]//g' /data/misc/wifi/softap.conf`"
-                    local hotspot_name="`echo ${hotspot} | sed $'s/\u0020.*//'`"
-                    local hotspot_password="`echo ${hotspot} | sed $'s/.*\u0020//'`"
+                    local hotspot="`sed -r $'s/\u0004/\u00A0/;s/[\u0001-\u0019]//g' /data/misc/wifi/softap.conf`"
+                    local hotspot_name="`echo ${hotspot} | sed $'s/\u00A0.*//'`"
+                    local hotspot_password="`echo ${hotspot} | sed $'s/.*\u00A0//'`"
                 fi
                 
                 # 输出热点信息
