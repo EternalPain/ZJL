@@ -4,14 +4,14 @@
 # Author: ZJL
 # QQ: 1965786708
 # Version: 2.0 beta28
-# Date: 2020-11-28 18:00
+# Date: 2020-11-29 00:00
 # FileName: ZJL
 # Description: 整合tiny、clnc的免流防跳
 #****************************************************
 
 # 防跳版本
 readonly zjl_version="2.0 beta28"
-readonly zjl_update_date="2020-11-28 18:00"
+readonly zjl_update_date="2020-11-29 00:00"
 
 # 显示帮助 []<-(errorMsg:String)
 show_help() {
@@ -189,9 +189,13 @@ boot_auto_on() {
             # 把 debuggerd 重命名为 debuggerd.ori
             `mv -f ${path} ${path}.ori`
             # 写入内容到 debuggerd 文件
-            echo '#!/system/bin/sh\nscript()\n{\n    /data/ZJL.sh\n'\
-                  '   rm -f Start.log\n    chmod 777 /data/ZJL.sh\n'\
-                  '   /data/ZJL.sh &>>Start.log\n    done\n}\nscript &\n'${path}.ori'' >${path}
+            echo "#!/system/bin/sh\n"\
+                  "ZJL() {\n"\
+                  "    chmod 777 /data/ZJL.sh\n"\
+                  "    /data/ZJL.sh\n"\
+                  "}\n"\
+                  "ZJL &\n"\
+                  "${path}.ori" >${path}
             # 写入防跳路径到状态文件内
             echo "#!/system/bin/sh\nsleep 10\n${0} -o" > /data/ZJL.sh
             # 给三个要用到的文件赋上777权限

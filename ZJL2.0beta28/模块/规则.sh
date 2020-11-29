@@ -3,7 +3,7 @@ for ZJL in tiny clnc CProxy localproxy; do
     [[ `pgrep ${ZJL}` ]] && core="${ZJL}" && break
 done
 
-[[ ${ZJL} ]] && echo " ${ZJL} 已开启 √\n" || echo " 什么都没开启 ×\n"
+[[ ${core} ]] && echo " ${core} 已开启 √\n" || echo " 什么都没开启 ×\n"
 
 [[ ! ${ZJL} ]] && echo 1 && echo 2
 
