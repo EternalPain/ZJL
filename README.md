@@ -55,6 +55,6 @@
 
 ****
 
-[脚本版使用教程](https://eternalpain.github.io/ "使用教程")   
+[使用教程](https://eternalpain.github.io/ "使用教程")   
 [百度云](https://pan.baidu.com/s/1k-GrWbXCVlpLhC7y8IIUog "ZJL")   
 [加入QQ群](https://qm.qq.com/cgi-bin/qm/qr?k=E3gr0d4kQnGioQ0CJBx5zS_KcB120aS_&jump_from=webapi "加入龍哥交流群")
