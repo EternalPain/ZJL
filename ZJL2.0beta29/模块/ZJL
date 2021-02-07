@@ -4,14 +4,14 @@
 # Author: ZJL
 # QQ: 1965786708
 # Version: 2.0 beta29
-# Date: 2021-2-7 16:00
+# Date: 2021-2-7 19:00
 # FileName: ZJL
 # Description: 整合tiny、clnc的免流防跳
 #****************************************************
 
 # 防跳版本
 readonly zjl_version="2.0 beta29"
-readonly zjl_update_date="2021-2-7 16:00"
+readonly zjl_update_date="2021-2-7 19:00"
 
 # 显示帮助 []<-(errorMsg:String)
 show_help() {
@@ -447,6 +447,8 @@ important_rules() {
     if [[ "放行" != ${hotspot_network} ]]; then
         # 禁网 FORWARD 链
         iptables -t mangle -P FORWARD DROP
+        # 判断是否禁止共享ipv6
+        [[ "放行" != ${ipv6_network} ]] && ip6tables -t mangle -P FORWARD DROP
         
         # 判断共享网络是否为代理
         if [[ "禁网" != ${hotspot_network} ]]; then
@@ -717,6 +719,7 @@ init_zjl() {
     hotspot_dns="`get_configure 共享DNS`"
     unlimited_data_way="`get_configure 免流方式 | grep -Ewi '^tiny|clnc$'`"
     select_mode_file="`get_configure 选择模式`"
+    ipv6_network="`get_configure 手机IPv6`" 
     check_extranet_way="`get_configure 检测联网 | grep -Ei "^[abcd]$"`"
     check_extranet_udp="`get_configure 检测UDP联网 | grep -w '开启'`"
     quickly_open_scripts="`get_configure 快速启动 | grep -w '开启'`"
@@ -773,7 +776,7 @@ close_zjl() {
     ip rule del fwmark 0x4f5da2/0xffffffff table 100
     ip route del local default dev lo table 100
     
-    # 解除禁止ipv6
+    # 解除禁止本机ipv6
     ip -6 rule del pref 13001 unreachable
     
     # 清除iptables规则        
@@ -785,6 +788,9 @@ close_zjl() {
         iptables -t mangle -F ${ZJL}
         iptables -t mangle -P ${ZJL} ACCEPT
     done
+    
+    # 解除禁止共享ipv6
+    ip6tables -t mangle -P FORWARD ACCEPT
     
     # 释放网络
     iptables -D OUTPUT ! -o wlan+ -j DROP
@@ -844,8 +850,8 @@ open_zjl() {
     # 判断是否启动TCP_FASTOPEN
     [[ "clnc" == ${unlimited_data_way} && `echo "${mode_file_content}" | grep '^ *tcp_option *= *TFO'` ]] && echo '3' >/proc/sys/net/ipv4/tcp_fastopen
     
-    # 通过ip路由禁止ipv6
-    [[ "放行" != `get_configure 手机IPv6` ]] && ip -6 rule add pref 13001 unreachable
+    # 通过ip路由禁止本机ipv6
+    [[ "放行" != ${ipv6_network} ]] && ip -6 rule add pref 13001 unreachable
     
     # 执行核心部分的iptables规则
     important_rules
@@ -1038,7 +1044,7 @@ show_display() {
             
             # 获取流量网卡
             local net_card="`dumpsys connectivity | grep 'NetworkAgentInfo{' | grep 'type: MOBILE' | grep -Ev '(extra: ims)|(extra: IMS)' | grep -o 'InterfaceName: [^ ]*' | sed 's/.*InterfaceName: //'`"
-            net_card="${net_card:-"`dumpsys netstats | grep -i "iface=" | grep 'defaultNetwork=true' | grep -Eio -m 1 "rmnet[^ ]*|ccmni[^ ]*"`"}"
+            net_card="${net_card:-"`dumpsys netstats | grep -i 'iface=' | grep 'metered=true' | grep -Eio -m 1 'rmnet[^ ]*|ccmni[^ ]*'`"}"
             net_card="${net_card:-"`ip route | grep -Eio -m 1 'rmnet[^ ]*|ccmni[^ ]*'`"}"
             
             # 获取内网IP
