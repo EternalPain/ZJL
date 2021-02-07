@@ -4,14 +4,14 @@
 # Author: ZJL
 # QQ: 1965786708
 # Version: 2.0 beta29
-# Date: 2021-2-7 13:00
+# Date: 2021-2-7 16:00
 # FileName: ZJL
 # Description: 整合tiny、clnc的免流防跳
 #****************************************************
 
 # 防跳版本
 readonly zjl_version="2.0 beta29"
-readonly zjl_update_date="2021-2-7 13:00"
+readonly zjl_update_date="2021-2-7 16:00"
 
 # 显示帮助 []<-(errorMsg:String)
 show_help() {
