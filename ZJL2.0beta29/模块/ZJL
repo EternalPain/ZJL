@@ -715,7 +715,7 @@ init_zjl() {
     hotspot_network="`get_configure 共享网络 | grep -Ei "放行|禁网"`"
     hotspot_udp="`get_configure 共享UDP`"
     hotspot_dns="`get_configure 共享DNS`"
-    unlimited_data_way="`get_configure 免流方式 | grep -Ewi 'tiny|clnc'`"
+    unlimited_data_way="`get_configure 免流方式 | grep -Ewi '^tiny|clnc$'`"
     select_mode_file="`get_configure 选择模式`"
     check_extranet_way="`get_configure 检测联网 | grep -Ei "^[abcd]$"`"
     check_extranet_udp="`get_configure 检测UDP联网 | grep -w '开启'`"
@@ -724,7 +724,7 @@ init_zjl() {
     
     # 读取免流方式
     if [[ ${unlimited_data_way} ]]; then
-        [[ `echo "${unlimited_data_way}" | grep -wi 'tiny'` ]] && unlimited_data_way='tiny' || unlimited_data_way='clnc'
+        [[ `echo "${unlimited_data_way}" | grep -wi '^tiny$'` ]] && unlimited_data_way='tiny' || unlimited_data_way='clnc'
     fi
     
     # 查看模式文件状态，正常为空
