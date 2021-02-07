@@ -3,50 +3,58 @@
 #****************************************************
 # Author: ZJL
 # QQ: 1965786708
-# Version: 2.0 beta28
-# Date: 2020-11-29 00:00
+# Version: 2.0 beta29
+# Date: 2021-2-7 13:00
 # FileName: ZJL
 # Description: 整合tiny、clnc的免流防跳
 #****************************************************
 
 # 防跳版本
-readonly zjl_version="2.0 beta28"
-readonly zjl_update_date="2020-11-29 00:00"
+readonly zjl_version="2.0 beta29"
+readonly zjl_update_date="2021-2-7 13:00"
 
 # 显示帮助 []<-(errorMsg:String)
 show_help() {
-    echo
     # 输出错误消息
-    [[ ${1} ]] && echo "ERROR: ${1}\n\n"
+    [[ ${1} ]] && echo "\nERROR: ${1}\n"
     
-    echo "ZJL 防跳 ${zjl_version}，作者: ZJL(龍哥)"
-    echo "更新时间 ${zjl_update_date}"
-    echo "QQ: 1965786708，发现BUG请加我反馈\n"
+    echo "\n  ****************************************"
+    echo "       ********      *****     *"
+    echo "             *         *       *"
+    echo "           *           *       *"
+    echo "         *         *   *       *"
+    echo "       ********     ***        ******"
+    echo "  ****************************************\n"
     
-    echo "Usage: ZJL [-o/-c]"
-    echo "   or: ZJL [-o/-c] [-d]"
-    echo "   or: ZJL [-o/-c] [-d] [-i]"
-    echo "   or: ZJL [-d]"
-    echo "   or: ZJL [-d] [-i]"
-    echo "   or: ZJL [-h]"
-    echo "   or: ZJL [-v]\n"
+    echo "  ZJL 防跳 ${zjl_version}，作者: ZJL(龍哥)"
+    echo "  更新时间 ${zjl_update_date}"
+    echo "  GitHub: https://github.com/EternalPain/ZJL"
+    echo "  QQ: 1965786708，发现BUG请加我反馈\n"
     
-    echo "-o or --open         开启防跳"
-    echo "-c or --close        关闭防跳"
-    echo "-d or --display      显示输出界面"
-    echo "-i or --info         显示所有信息"
-    echo "-h or --help         查看帮助"
-    echo "-v or --version      查看版本\n"
+    echo "  Usage: ZJL [-o/-c]"
+    echo "     or: ZJL [-o/-c] [-d]"
+    echo "     or: ZJL [-o/-c] [-d] [-i]"
+    echo "     or: ZJL [-d]"
+    echo "     or: ZJL [-d] [-i]"
+    echo "     or: ZJL [-h]"
+    echo "     or: ZJL [-v]\n"
     
-    echo "最多支持三个有效选项:"
-    echo "-o 和 -c 二选一 不可同时选择"
-    echo "-h 和 -v 单独使用 例: ZJL -h"
+    echo "  -o or --open         开启防跳"
+    echo "  -c or --close        关闭防跳"
+    echo "  -d or --display      显示界面"
+    echo "  -i or --info         显示所有输出"
+    echo "  -h or --help         查看帮助"
+    echo "  -v or --version      查看版本\n"
+    
+    echo "  最多支持三个有效选项:"
+    echo "  -o 和 -c 二选一 不可同时选择"
+    echo "  -h 和 -v 单独使用 例: ZJL -h"
     
     exit
 }
 
 
-# 读取配置 = 号后面的内容 [String]<-(arg:String)
+# 读取配置里 = 号后面的内容 [String]<-(arg:String)
 get_configure() {
     echo "`echo "${configure_file_content}" | sed -n "s/^${1}=//p"`"
 }
@@ -60,7 +68,7 @@ get_confPort() {
 
 # 通过包名读取应用UID [int]<-(packageName:String)
 get_package_uid() {
-    echo "`echo "${package_uid_list}" | grep -w "${1}" | sed 's/.*[ \t]//'`"
+    echo "`echo "${package_uid_list}" | grep -wi "${1}" | sed 's/.*[ \t]//'`"
 }
 
 
@@ -70,6 +78,12 @@ read_mode_port() {
     mode_file_content="`sed 's/\/\/.*$//;s/#.*$//;/^[ ]*$/d' ${mode_file}`"
     # 读取模式内带有端口内容的行
     mode_listen_port_list="`echo "${mode_file_content}" | grep "listen"`"
+    
+    # 判断是否自动识别免流方式
+     if [[ ! ${unlimited_data_way} ]]; then
+        # 自动识别
+        [[ `echo "${mode_file_content}" | grep -E '(^ *user=)|(^ *uid=)'` ]] && unlimited_data_way='tiny' || unlimited_data_way='clnc'
+    fi
     
     # 判断核心是否为clnc 模式是否开启UDP
     if [[ "clnc" == ${unlimited_data_way} && `echo "${mode_file_content}" | grep -i "httpUDP"` ]]; then
@@ -108,7 +122,7 @@ release_uid() {
 # 放行本机指定协议的UID的端口 []<-(protocol:String, uid_ports:String)
 release_uid_ports() {
     [[ ! ${2} ]] && return 0
-    local uid_ports="`echo "${2}" | sed 's/[ ][ ]*/\n/g' | grep -Ei '^(([0-9]{1,9}|ZJL)(_(([1-9])|([1-9][0-9])|([1-9][0-9][0-9])|([1-9][0-9][0-9][0-9])|([1-6][0-5][0-5][0-3][0-5]))((,|:)(([1-9])|([1-9][0-9])|([1-9][0-9][0-9])|([1-9][0-9][0-9][0-9])|([1-6][0-5][0-5][0-3][0-5])))*)?)$'`"
+    local uid_ports="`echo "${2}" | sed 's/[ ][ ]*/\n/g' | grep -Ei '^(([0-9]{1,9}|ZJL)(_(([1-9])|([1-9][0-9])|([1-9][0-9][0-9])|([1-9][0-9][0-9][0-9])|([1-6][0-5][0-5][0-3][0-5]))((,|:)(([1-9])|([1-9][0-9])|([1-9][0-9][0-9])|([1-9][0-9][0-9][0-9])|([1-6][0-5][0-5][0-3][0-5])))*))$'`"
     local uid
     local ports
     local uid_content
@@ -233,7 +247,7 @@ boot_auto_on() {
     
     # 重写路径，SuperSU自启方法
     local path="/su/su.d/ZJL.sh"
-    [ -f ${path} ] && local read_state="`cat ${path} | grep -w "${0}"`" || read_state=""
+    [ -f ${path} ] && read_state="`cat ${path} | grep -w "${0}"`" || read_state=""
     
     # 选项不为 su 且自启文件不存在的话，就为true
     if [[ "su" == ${option} && ! ${read_state} ]]; then
@@ -345,31 +359,6 @@ get_net_card_traffic() {
 }
 
 
-# 内网白名单 []<-()
-intranet_IP_white_list() {
-    local intranet_ip_effective_list=`get_configure 内网白名单 | sed 's/[ ][ ]*/\n/g;'/^$/d'' | grep -E '^([0-9]{1,3}[.]){1,3}[0-9]{1,3}(-([0-9]{1,3}[.]){1,3}[0-9]{1,3})?$'`
-    
-    # 读取白名单设置
-    for ZJL in ${intranet_ip_effective_list}; do
-        # 判断是否为连续IP段
-        if [[ ! `echo ${ZJL} | grep '-'` ]]; then
-            iptables -t mangle -I OUTPUT -s ${ZJL}/16 -p 6 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-            [[ "禁网" != ${native_dns} ]] && iptables -t mangle -I OUTPUT -s ${ZJL}/16 -p 17 --dport 53 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-        else
-            iptables -t mangle -I OUTPUT -p 6 -m iprange --src-range ${ZJL} -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-            [[ "禁网" != ${native_dns} ]] && iptables -t mangle -I OUTPUT -p 17 -m iprange --src-range ${ZJL} --dport 53 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-        fi
-    done
-    
-    # 判断是否关闭白名单功能
-    if [[ ! ${intranet_ip_effective_list} ]]; then
-        # 没有开启白名单功能，默认放行所有内网规则
-        iptables -t mangle -I OUTPUT -p 6 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-        [[ "禁网" != ${native_dns} ]] && iptables -t mangle -I OUTPUT -p 17 --dport 53 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-    fi
-}
-
-
 # 核心部分的iptables规则 []<-()
 important_rules() {
     # 读取的模式 TCP 和 DNS 的转发端口
@@ -419,10 +408,13 @@ important_rules() {
     if [[ "放行" != ${release_native_uid} ]]; then
         # 禁mengle链
         iptables -t mangle -P OUTPUT DROP
+        # 禁网内核
+        iptables -t mangle -I OUTPUT -m owner ! --uid 0-99999999 -j DROP || iptables -t mangle -I OUTPUT -m owner ! --uid 0-99999 -j DROP
         
         if [[ "禁网" != ${ban_native_uid} ]]; then
-            # 内网白名单
-            intranet_IP_white_list
+            # 放行TCP和DNS
+            iptables -t mangle -I OUTPUT -p 6 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+            [[ "禁网" != ${native_dns} ]] && iptables -t mangle -I OUTPUT -p 17 --dport 53 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
             
             # 如果不代理UDP就执行本条
             [[ ! ${proxy_native_udp} ]] && iptables -t nat -I OUTPUT -j REDIRECT
@@ -440,14 +432,11 @@ important_rules() {
             fi
             
             # 放行核心 GID 或 UID
-            if [[ "tiny" == ${unlimited_data_way} && ! ${is_MLBox_exist} ]]; then
-                local forward_uid="`echo "${mode_file_content}" | grep -E 'user|uid' | sed -rn 's/[ ][ ]*|;//g;s/root/0/;s/inet/3003/;s/net_raw/3004/;s/.*=(.*)/\1/;$p'`"
-                forward_uid=${forward_uid:-"0"}
-                
-                iptables -t nat -I OUTPUT -m owner --uid ${forward_uid} -j ACCEPT
-            else
-                iptables -t nat -I OUTPUT -m owner --gid ${forward_gid} -j ACCEPT
-            fi
+            local uid_or_gid
+            [[ "tiny" == ${unlimited_data_way} ]] \
+                && uid_or_gid="--uid ${forward_uid}" \
+                || uid_or_gid="--gid 3004"
+            iptables -t nat -I OUTPUT -m owner ${uid_or_gid} -j ACCEPT
         fi
     fi
     
@@ -475,7 +464,9 @@ important_rules() {
             else
                 # 判断共享DNS是否为代理
                 if [[ "放行" != ${hotspot_dns} ]]; then
-                    [[ "tiny" == ${unlimited_data_way} ]] && iptables -t nat -I PREROUTING -s 192.168/16 -p 17 --dport 53 -j REDIRECT --to 53 || iptables -t nat -I PREROUTING -s 192.168/16 -p 17 --dport 53 -j REDIRECT --to ${dns_forward_port}
+                    [[ "tiny" == ${unlimited_data_way} ]] \
+                        && iptables -t nat -I PREROUTING -s 192.168/16 -p 17 --dport 53 -j REDIRECT --to 53 \
+                        || iptables -t nat -I PREROUTING -s 192.168/16 -p 17 --dport 53 -j REDIRECT --to ${dns_forward_port}
                 fi
             fi
         fi
@@ -502,14 +493,16 @@ game_rules() {
     # 预设一个局部变量存游戏UID
     local uid
     
-    # 游戏包名 游戏列表：王者荣耀，QQ飞车，CF，和平精英，火影忍者，第五人格网易版，明日之后网易版
+    # 游戏包名 游戏列表：王者荣耀、QQ飞车、CF、和平精英、使命召唤、火影忍者、第五人格网易版、明日之后网易版、球球大作战
     for ZJL in com.tencent.tmgp.sgame \
                com.tencent.tmgp.speedmobile \
                com.tencent.tmgp.cf \
                com.tencent.tmgp.pubgmhd \
+               com.tencent.tmgp.cod \
                com.tencent.KiHan \
                com.netease.mrzh \
-               com.netease.dwrg; do
+               com.netease.dwrg \
+               com.ztgame.bob; do
         uid="`get_package_uid ${ZJL}`"
         [[ ! ${uid} ]] && continue
         
@@ -712,7 +705,7 @@ init_zjl() {
     fi
     
     # 读取防跳配置文件，并过滤以 // 和 # 为开头的注释内容
-    configure_file_content="`sed 's/\/\/.*$//;s/#.*$//;/^[ ]*$/d;s/[[:space:]][[:space:]]*/ /g;s/^ //g;s/ $//g;s/= /=/g;/^ *.*=$/d' ${zjl_path}/*.ini`"
+    configure_file_content="`sed 's/\/\/.*$//;s/#.*$//;/^[ ]*$/d;s/[[:space:]][[:space:]]*/ /g;s/^ //g;s/ $//g;s/= /=/g' ${zjl_path}/*.ini`"
     
     # 读取配置
     release_native_uid="`get_configure 放行UID`"
@@ -722,12 +715,17 @@ init_zjl() {
     hotspot_network="`get_configure 共享网络 | grep -Ei "放行|禁网"`"
     hotspot_udp="`get_configure 共享UDP`"
     hotspot_dns="`get_configure 共享DNS`"
-    unlimited_data_way="`get_configure 免流方式 | grep -wi 'clnc'`"
+    unlimited_data_way="`get_configure 免流方式 | grep -Ewi 'tiny|clnc'`"
     select_mode_file="`get_configure 选择模式`"
     check_extranet_way="`get_configure 检测联网 | grep -Ei "^[abcd]$"`"
     check_extranet_udp="`get_configure 检测UDP联网 | grep -w '开启'`"
     quickly_open_scripts="`get_configure 快速启动 | grep -w '开启'`"
     on_off_network="`get_configure 开关数据 | grep -w '开启'`"
+    
+    # 读取免流方式
+    if [[ ${unlimited_data_way} ]]; then
+        [[ `echo "${unlimited_data_way}" | grep -wi 'tiny'` ]] && unlimited_data_way='tiny' || unlimited_data_way='clnc'
+    fi
     
     # 查看模式文件状态，正常为空
     if [[ `find "${mode_path}" -type f -maxdepth 1 -iname "*.conf"` ]]; then
@@ -766,6 +764,7 @@ init_zjl() {
 
 # 关闭防跳 []<-()
 close_zjl() {
+    sleep 0.1
     # 关闭核心    
     `pkill tiny`
     `pkill clnc`
@@ -790,13 +789,7 @@ close_zjl() {
     # 释放网络
     iptables -D OUTPUT ! -o wlan+ -j DROP
     iptables -D FORWARD -j DROP
-    
-    list=(`iptables -L OUTPUT -t filter --line-numbers | sed -n 's/\([0-9]\) .*! owner GID match.*/\1/p'`)
-    local i="$((${#list[@]} - 1))"
-    while [ $i -ge 0 ]; do
-        iptables -D OUTPUT ${list[${i}]}
-        ((i--))
-    done
+    iptables -D OUTPUT ! -o wlan+ -m owner ! --gid 3004 -j DROP
         
     # 调用开机自启函数
     boot_auto_on
@@ -812,13 +805,11 @@ open_zjl() {
     read_mode_port
     
     # 获取GID 启动核心
-    if [[ `echo "${unlimited_data_way}" | grep -wi 'clnc'` ]]; then
-        [[ ${on_off_network} ]] && sleep 0.5
-        forward_gid="3004"
-        
+    if [[ 'clnc' == "${unlimited_data_way}" ]]; then
+        [[ ${on_off_network} ]] && sleep 0.2
         # 禁止网络 改为放行GID
         iptables -D OUTPUT ! -o wlan+ -j DROP
-        iptables -I OUTPUT ! -o wlan+ -m owner ! --gid ${forward_gid} -j DROP
+        iptables -I OUTPUT ! -o wlan+ -m owner ! --gid 3004 -j DROP
         
         local temp_mode_file="/dev/${mode_file##*/}"
         # 处理模式 删除Tun部分 写入临时模式文件
@@ -829,33 +820,26 @@ open_zjl() {
         CLNC_INIT_CONFIG_DNS="${CLNC_INIT_CONFIG_DNS:-'119.29.29.29'}"
         
         # 以GID方式 启动clnc核心
-        core_start_error_info="`${module_path}/clnc -g ${forward_gid} -c ${temp_mode_file} 2>&1`"
-        
+        core_start_error_info="`${module_path}/clnc -g 3004 -c ${temp_mode_file} 2>&1`"
         # 删除临时模式文件
         `rm -f ${temp_mode_file}`
     else
-        unlimited_data_way="tiny"
+        forward_uid="`echo "${mode_file_content}" | grep -Ew '(^ *user)|(^ *uid)' | sed -rn 's/[ ][ ]*//g;s/;//g;s/root/0/;s/inet/3003/;s/net_raw/3004/;s/.*=([0-9]+)/\1/;$p'`"
+        forward_uid=${forward_uid:-"0"}
         
-        # 启动tiny核心
-        if [[ ${is_MLBox_exist} ]]; then
-            forward_gid="`echo "${mode_file_content}" | grep -w "user" | sed -r "s/[ ][ ]*//g;s/.*=(.*)\;/\1/;s/root/0/;s/inet/3003/;s/net_raw/3004/"`"
-            forward_gid=${forward_gid:-"`echo "${mode_file_content}" | grep -w "uid" | sed -r "s/[ ][ ]*//g;s/.*=(.*)\;/\1/"`"}
-            forward_gid=${forward_gid:-"0"}
-            
-            # 使用MLBox以GID方式 
-            core_start_error_info="`${module_path}/MLBox -cmd="${forward_gid} ${module_path}/tiny -c ${mode_file}" 2>&1`"
-        else
-            # 以UID方式 
-            core_start_error_info="`${module_path}/tiny -c ${mode_file} 2>&1`"
-        fi
+        # 以UID方式 启动tiny核心
+        core_start_error_info="`${module_path}/tiny -c ${mode_file} 2>&1`"
     fi
     
     # 如果核心没开启，就退出函数
-    [[ ! `pgrep ${unlimited_data_way}` ]] && return 2
+    [[ ! `pgrep /${unlimited_data_way}` ]] && return 2
     
     # 打开ipv4路由转发
     echo '1' > /proc/sys/net/ipv4/ip_forward
     echo '1' > /proc/sys/net/ipv4/ip_dynaddr
+    
+    # 关闭selinux
+    setenforce 0
     
     # 判断是否启动TCP_FASTOPEN
     [[ "clnc" == ${unlimited_data_way} && `echo "${mode_file_content}" | grep '^ *tcp_option *= *TFO'` ]] && echo '3' >/proc/sys/net/ipv4/tcp_fastopen
@@ -871,6 +855,13 @@ open_zjl() {
     return 0
 }
 
+
+# 解析json 获取 key 对应的 value(此函数不适于有多个 key 一样的) [String]<-(json:String, key:String)
+get_json_value(){
+    echo "${1//\"/}" | sed "s/.*$2:\([^,}]*\).*/\1/"
+}
+
+
 # 检测联网 []<-(time_out:Integer)
 detect_internet_connectivity() {
     # 超时时间(单位秒)
@@ -881,24 +872,21 @@ detect_internet_connectivity() {
         # 通过MLBox检测网络连接
         case ${check_extranet_way} in
             a|A)
-                # ip138 的接口
-                extranet_ip="`MLBox -http="http://202020.ip138.com/" -t=${time_out} | grep "来自" \
-                             | sed 's/\[.*\">//;s/<.*]//;s/.*地址是：/IP：/;s/来自/\n来自/'`"
+                # 淘宝 的接口
+                extranet_ip="`MLBox -http='http://ip.taobao.com/outGetIpInfo?ip=myip&accessKey=alibaba-inc' -t=${time_out}`"
+                [[ "0" == `get_json_value "$extranet_ip" "code"` ]] \
+                    && extranet_ip="IP：`get_json_value "$extranet_ip" "queryIp"`\n来自：`get_json_value "$extranet_ip" "country"``get_json_value "$extranet_ip" "region"``get_json_value "$extranet_ip" "city"` `get_json_value "$extranet_ip" "isp"`" \
+                    || extranet_ip=""
             ;;
             b|B)
                 # 站长之家 的接口
-                extranet_ip="`MLBox -http="http://mip.chinaz.com/" -t=${time_out} | grep -Ei "您的IP|来自" \
-                             | sed "s/.*<h4>//g;s/<\/.*>//g;s/<.*>//g;s/.*地址：/IP：/"`"
+                extranet_ip="`MLBox -http="http://mip.chinaz.com/" -t=${time_out} | grep -Ei '您的IP|数据一' \
+                             | sed 's/<[^>]*>//g;s/.*地址：/IP：/;s/.*数据一：/来自：/'`"
             ;;
             c|C)
-                # cip.cc 的接口
-                extranet_ip="`MLBox -http="http://www.cip.cc/" -t=${time_out} | grep -E "<pre>IP|数据二" \
-                             | sed "s/.*IP.*: /IP：/;s/数据二.*: /来自：/;s/| //"`"
-            ;;
-            d|D)
                 # ipip.net 的接口
-                extranet_ip="`MLBox -http="http://myip.ipip.net/" -t=${time_out} | grep -E "IP|来自"  \
-                             | sed "s/\/.*\///g;s/<.*>//g;s/当前.*IP：/IP：/;s/来自于：/\n来自：/;s/| //"`"
+                extranet_ip="`MLBox -http="http://myip.ipip.net/" -t=${time_out} | grep -E 'IP|来自' \
+                             | sed 's/.*IP：/IP：/;s/来自于：/\n来自：/;s/| //'`"
             ;;
         esac
         
@@ -936,14 +924,10 @@ show_display() {
     
     local core_state
     # 检测当前使用的免流核心状态
-    if [[ `pgrep tiny` ]]; then
+    if [[ `pgrep /tiny` ]]; then
         core_state="tiny"
-    elif [[ `pgrep clnc` ]]; then
+    elif [[ `pgrep /clnc` ]]; then
         core_state="clnc"
-    else
-        # 没开免流关闭检测网络
-        check_extranet_way=""
-        check_extranet_udp=""
     fi
     
     # 输出当前使用的免流核心状态
@@ -951,6 +935,10 @@ show_display() {
         center_output "核心: ${core_state} √  " "not_exist"
     else
         center_output "核心: 啥都没开 ×   " "not_exist"
+        
+        # 没开免流关闭检测网络
+        check_extranet_way=""
+        check_extranet_udp=""
         
         if [[ ${core_start_error_info} ]]; then
             output_dividing_line "not_exist"
@@ -1049,9 +1037,9 @@ show_display() {
             # ———当前使用的是流量———
             
             # 获取流量网卡
-            local net_card="`dumpsys connectivity | grep 'NetworkAgentInfo{' | grep -Ev 'ims|IMS|tun|TUN|wifi|WIFI' | grep -o 'InterfaceName: [^ ]*' | sed 's/.*InterfaceName: //'`"
-            net_card="${net_card:-"`dumpsys netstats | grep -i "iface" | grep -Eio -m 1 "rmnet[^ ]*|ccmni[^ ]*"`"}"
-            net_card="${net_card:-"`ip route | grep -Eio 'rmnet[^ ]*|ccmni[^ ]*'`"}"
+            local net_card="`dumpsys connectivity | grep 'NetworkAgentInfo{' | grep 'type: MOBILE' | grep -Ev '(extra: ims)|(extra: IMS)' | grep -o 'InterfaceName: [^ ]*' | sed 's/.*InterfaceName: //'`"
+            net_card="${net_card:-"`dumpsys netstats | grep -i "iface=" | grep 'defaultNetwork=true' | grep -Eio -m 1 "rmnet[^ ]*|ccmni[^ ]*"`"}"
+            net_card="${net_card:-"`ip route | grep -Eio -m 1 'rmnet[^ ]*|ccmni[^ ]*'`"}"
             
             # 获取内网IP
             [[ ${net_card} ]] && local intranet_ip="`ip -4 addr | grep -w ${net_card} | sed -rn 's/.*inet (.*)\/.*/\1/p'`"
@@ -1061,7 +1049,7 @@ show_display() {
                 # 输出内网IP
                 center_output "内网: ${intranet_ip} "
                 
-                # 只有满足不是关闭防跳  开启了检测功能才会开始检测
+                # 只有执行开启和检测的时候 开启了检测功能才会开始检测网络
                 if [[ "close" != ${script_execution_state} ]] && [[ ${check_extranet_way} || ${check_extranet_udp} ]]; then
                     local check_extranet_state="ON"
                     # 判断是否存在MLBox模块
@@ -1071,13 +1059,12 @@ show_display() {
                 # 重新获取网络信息
                 netstats_info="`dumpsys connectivity | grep 'NetworkAgentInfo{' | grep -Ev 'ims|IMS|tun|TUN|wifi|WIFI'`"
                 # 获取 APN
-                local apn="`echo "${netstats_info}" | sed 's/.*extra: \(.*\), failover.*/\1/'`"
-                apn="${apn#*,}"
+                local apn="`echo "${netstats_info}" | sed 's/.*extra: \([^,]*\),.*/\1/'`"
                 # 获取APN 代理和端口 信息
                 local apn_agent_and_port="`echo "${netstats_info}" | sed -rn 's/.*HttpProxy: \[(.*)\] ([0-9]{2,5}).*/\1 \2/p'`"
-                
                 # 输出接入点
                 [[ ${apn_agent_and_port} ]] && center_output " APN: ${apn} ${apn_agent_and_port}" "not_exist" || center_output "APN: ${apn} 代理留空   " "not_exist"
+                
                 
                 # 输出数据使用流量数
                 get_net_card_traffic "${net_card}"
@@ -1112,24 +1099,6 @@ show_display() {
                     ;;
                 esac
                 
-                # 判断是否开启显示内网白名单功能
-                if [[ "close" != ${script_execution_state} && "开启" == `get_configure 显示内网白名单` ]]; then
-                    # 读取生效的内网IP白名单列表
-                    local intranet_ip_effective_list="`iptables -t mangle -S OUTPUT \
-                                                    | grep "^-A.*-p tcp.*-m state --state NEW,RELATED,ESTABLISHED -j ACCEPT$" \
-                                                    | grep -E "(\-s ([0-9]{1,3}\.){3}[0-9]{1,3}/16 -p tcp.*)|(iprange --src-range)" \
-                                                    | sed -r "s/.*-s(.*)-m.*/\1/;s/rc-range (.*) /\1/;s/ (.*)\/16.*/\1/"`"
-                    
-                    if [[ ${intranet_ip_effective_list} ]]; then
-                        output_dividing_line
-                        center_output "生效的内网白名单列表   "
-                        center_output "其他内网将会没网   " "not_exist"
-                    
-                        for ZJL in ${intranet_ip_effective_list}; do
-                            center_output "${ZJL}" "above"
-                        done
-                    fi
-                fi
             else
                 center_output "网络: 数据都没开 ×  " "not_exist"
             fi
@@ -1144,7 +1113,7 @@ show_display() {
                 # 获取热点连接数
                 local hotspots_connect="`grep '0x2' /proc/net/arp | grep -c "${hotspots_net_card}"`"
                 # 获取热点连接设备数
-                center_output "热点: ${hotspots_connect} 个已连接  "
+                center_output "热点: ${hotspots_connect} 个已连接   "
                 
                 # 获取热点的名字和密码
                 if [ -s /data/misc/apexdata/com.android.wifi/WifiConfigStoreSoftAp.xml ]; then
@@ -1160,7 +1129,7 @@ show_display() {
                 # 输出热点信息
                 if [[ ${hotspot_name} ]]; then
                     center_output "名称: ${hotspot_name}  " "not_exist"
-                    [[ ${hotspot_password} ]] && center_output "密码: ${hotspot_password}  " "above"
+                    [[ ${hotspot_password} ]] && center_output "密码: ${hotspot_password}   " "above"
                 else
                     center_output "获取热点名和密码失败   " "not_exist"
                 fi
@@ -1226,12 +1195,38 @@ mainBody() {
         # 打开防跳
         open_zjl
         
-        # 判断启动状态码 不为正常就关闭数据
-        [[ "0" != ${?} ]] && svc data disable
+        local start_code="${?}"
+        # 判断启动状态码 正常为0
+        if [[ "0" != ${start_code} ]]; then
+            # 关闭数据
+            svc data disable
+            local log_path="${0%/*}/start_error_log.txt"
+            
+            echo "开启核心 ${unlimited_data_way} 失败\n错误原因:" > ${log_path}
+            
+            if [[ "1" == ${start_code} ]]; then
+                case ${mode_file_state} in
+                    no_selected_mode_file)
+                        echo "没找到指定的 ${select_mode_file}.conf 文件" >> ${log_path}
+                    ;;
+                    please_select)
+                        echo "有多个模式文件 防跳不知道启动哪一个\n所以请使用 [选择模式] 功能 !" >> ${log_path}
+                    ;;
+                    no_content)
+                        echo "模式内容为空 !" >> ${log_path}
+                    ;;
+                    no_mode_file)
+                        echo "没找到模式 所以请添加模式文件 !" >> ${log_path}
+                    ;;
+                esac
+            else
+                echo "${core_start_error_info}" >> ${log_path}
+            fi
+        fi
         
         # 释放网络
         iptables -D OUTPUT ! -o wlan+ -j DROP
-        iptables -D OUTPUT ! -o wlan+ -m owner ! --gid ${forward_gid} -j DROP
+        iptables -D OUTPUT ! -o wlan+ -m owner ! --gid 3004 -j DROP
         iptables -D FORWARD -j DROP
         
     elif [[ "close" == ${script_execution_state} ]]; then
