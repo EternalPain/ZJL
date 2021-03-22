@@ -19,20 +19,19 @@
 
 ### 注意事项:
 ```txt
-1. 不支持纯CNS 但支持纯CNS的那种clnc模式 比如联通手厅直播那种
-2. 不支持tiny模式里有一个接口 然后自动获取验证的那种模式
-3. 不支持ipv6免流
+1. 不支持tiny模式里有一个接口 然后自动获取验证的那种模式
+2. 不支持ipv6免流
 
-4. tiny模式的uid写0 3003 3004之一
-5. 如果安卓11用tiny的话，uid不要写3004，可能会没网，推荐写0，啥系统版本都有网，换了还是没网就换clnc模式
+3. tiny模式的uid写0 3003 3004之一
+4. 如果安卓11用tiny的话，uid不要写3004，可能会没网，推荐写0，啥系统版本都有网，换了还是没网就换clnc模式
 
-6. 如果删除了MLbox 将不支持检测HTTP和HTTPS联网 以及检测UDP联网
-7. 如果删除了busybox并且手机没有安装busybox的话 将不支持显示运行中的模式名 以及显示已用流量
-8. 如果手机不支持iptables的multiport模块 本机和共享的放行端口将会放行不了端口范围
+5. 如果删除了MLbox 将不支持检测HTTP和HTTPS联网 以及检测UDP联网
+6. 如果删除了busybox并且手机没有安装busybox的话 将不支持显示运行中的模式名 以及显示已用流量
+7. 如果手机不支持iptables的multiport模块 本机和共享的放行端口将会放行不了端口范围
 
-9. 本机成功代理了UDP的话 共享UDP放行将无效
+8. 本机成功代理了UDP的话 共享UDP放行将无效
 
-10. 如果装了面具的话 可以直接防跳配置 [开机自启] 填面具 跟刷模块自启效果一样的
+9. 如果装了面具的话 可以直接防跳配置 [开机自启] 填面具 跟刷模块自启效果一样的
 ```
 
 ### 2.0 Beta29 更新日志:
@@ -55,5 +54,5 @@
 ****
 
 [使用教程](https://eternalpain.github.io/ "使用教程")   
-[百度云](https://pan.baidu.com/s/1k-GrWbXCVlpLhC7y8IIUog "ZJL")   
+[百度云]( "ZJL")   
 [加入QQ群](https://qm.qq.com/cgi-bin/qm/qr?k=E3gr0d4kQnGioQ0CJBx5zS_KcB120aS_&jump_from=webapi "加入龍哥交流群")
