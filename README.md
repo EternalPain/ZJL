@@ -55,6 +55,6 @@
 ****
 
 [使用教程](https://eternalpain.github.io/ "使用教程")   
-[百度云]( "ZJL")   
+[百度云](https://pan.baidu.com/s/1k-GrWbXCVlpLhC7y8IIUog "ZJL")   
 [加入QQ①群](https://jq.qq.com/?_wv=1027&k=6TYx63zJ "加入龍哥交流群")   ①群已满  
-[加入QQ②群](https://jq.qq.com/?_wv=1027&k=PHSkK2MR "加入龍哥交流②群")  
+[加入QQ②群](https://jq.qq.com/?_wv=1027&k=PHSkK2MR "加入龍哥交流②群")  ②群已满  
