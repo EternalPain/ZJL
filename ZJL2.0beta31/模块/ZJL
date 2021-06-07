@@ -2,14 +2,14 @@
 # Author: ZJL
 # QQ: 1965786708
 # Version: 2.0 beta31
-# Date: 2021-6-7 22:00
+# Date: 2021-6-8 01:20
 # FileName: ZJL
 # Description: 整合tiny、clnc的免流防跳
 #****************************************************
 
 # 防跳版本
 readonly zjl_version="2.0 beta31"
-readonly zjl_update_date="2021-6-7 22:00"
+readonly zjl_update_date="2021-6-8 01:20"
 
 # 显示帮助 []<-(errorMsg:String)
 show_help() {
@@ -429,7 +429,7 @@ important_rules() {
         
         # 判断是否代理本机UDP
         if [[ ${proxy_native_udp} ]]; then
-            iptables -t mangle -I OUTPUT -p 17 ! --dport 53 -m ${conntrackModule} NEW,ESTABLISHED,RELATED -j ACCEPT
+            iptables -t mangle -I OUTPUT -p 17 ! --dport 53 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
             iptables -t mangle -I OUTPUT -p 17 ! --dport 53 -j MARK --set-mark 999
         fi
         
@@ -458,8 +458,8 @@ important_rules() {
         
         if [[ "禁网" != ${ban_native_uid} ]]; then
             # 放行TCP和DNS
-            iptables -t mangle -I OUTPUT -p 6 -m ${conntrackModule} NEW,ESTABLISHED,RELATED -j ACCEPT
-            [[ "禁网" != ${native_dns} ]] && iptables -t mangle -I OUTPUT -p 17 --dport 53 -m ${conntrackModule} NEW,ESTABLISHED,RELATED -j ACCEPT
+            iptables -t mangle -I OUTPUT -p 6 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+            [[ "禁网" != ${native_dns} ]] && iptables -t mangle -I OUTPUT -p 17 --dport 53 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
             
             # 转发 TCP
             iptables -t nat -I OUTPUT -p 6 -j REDIRECT --to ${tcp_forward_port}
@@ -1052,8 +1052,6 @@ init_zjl() {
     
     # 判断手机是否支持 multiport 模块
     [[ `grep -i '^multiport$' /proc/net/ip_tables_matches` ]] && is_multiport_support='true'
-    # 判断手机是否支持 conntrack 模块
-    [[ `grep -i '^conntrack$' /proc/net/ip_tables_matches` ]] && conntrackModule='conntrack --ctstate' || conntrackModule='state --state'
     
     
     # 读取防跳配置文件，并过滤以 // 和 # 为开头的注释内容
